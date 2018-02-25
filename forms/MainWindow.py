@@ -58,8 +58,8 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(boardLoadBtn)
 
     def initCentralWidget(self):
-        self.placeholderLabel = QLabel("Placeholder")
-        self.setCentralWidget(self.placeholderLabel)
+        self.mainImage = QLabel("Image")
+        self.setCentralWidget(self.mainImage)
 
     def initDock(self):
         ## variable initialization ##
@@ -124,6 +124,9 @@ class MainWindow(QMainWindow):
         for post in self.threadPosts[(boardName, threadNo)]:
             self.imageList.addItem(post['filename'])
             
+    def updateMainImage(self, imageURL):
+        pixmap = QPixmap(imageURL)
+        self.mainImage.setPixmap(pixmap)
 
     def on_threadSelect(self):
         current = self.threadList.currentRow()
@@ -133,8 +136,12 @@ class MainWindow(QMainWindow):
             print('att err?')
 
     def on_postSelect(self):
-        #self.placeholderLabel.setText(self.imageList.currentText())
-        pass
+        current = self.threadList.currentRow()
+        board = self.boardComboBox.currentText()
+        threadNo = self.threads[current]['no']
+        postIndex = self.imageList.currentRow()
+        print(str(self.threadPosts[(board, threadNo)][postIndex]['imageURL']))
+        #self.mainImage.setText(self.threadPosts[(self.boardComboBox.currentText(), self.threads[current]['no'])])
 
     # Event when the "go" button is clicked when selecting a board
     def on_boardLoad(self):

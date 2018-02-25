@@ -1,5 +1,11 @@
 import requests
+import shutil
 
+"""
+        TODO
+    - Fix errors when selecting posts and changing boards
+    - Get the actual image to download using requests
+"""
 class ApiInterface():
     def __init__(self):
         # requests session
@@ -66,7 +72,11 @@ class ApiInterface():
             postList.append(postDict)
         return postList
 
-
+    def downloadImage(URL):
+        r = self.s.get(URL)
+        with open(path, 'wb') as f:
+            r.raw.decode_content = True
+            shuil.copyfileobj(r.raw, 'cache')
 
 
 
