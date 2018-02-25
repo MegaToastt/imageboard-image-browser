@@ -2,3 +2,4 @@
 *.psd
 100px-box.png
 __pycache__/
+cache/
