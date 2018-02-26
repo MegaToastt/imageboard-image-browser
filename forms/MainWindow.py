@@ -1,12 +1,18 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import pprint
 
 class MainWindow(QMainWindow):
     def __init__(self, api):
         super(MainWindow, self).__init__()
         self.api = api
         self.initUI()
+        
+        self.currentBoard = None
+        self.currentThread = None
+        self.currentImageURL = None
+
 
     def initUI(self):
         self.initMenuBar()
@@ -93,17 +99,15 @@ class MainWindow(QMainWindow):
 
         sideDock.setWidget(dockWidget)
         self.addDockWidget(Qt.LeftDockWidgetArea, sideDock)
-        self.threadList.currentRowChanged.connect(self.on_threadSelect)
-        self.imageList.currentRowChanged.connect(self.on_postSelect)
+        #self.threadList.currentRowChanged.connect(self.on_threadSelect)
+        #self.imageList.currentRowChanged.connect(self.on_postSelect)
+        self.threadList.itemClicked.connect(self.on_threadSelect)
+        self.imageList.itemClicked.connect(self.on_postSelect)
 
-    def initImageDock(self):
-        sideDock = QDockWidget("Images", self)
-        sideDock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
-        self.imageList = QListWidget(sideDock)
-        self.imageList.addItems(("TestImage1", "TestImage2", "TestImage3"))
-        sideDock.setWidget(self.imageList)
-        self.addDockWidget(Qt.LeftDockWidgetArea, sideDock)
-        
+    def updateCurrentSelected(self, boardName=None, threadNo=None, imageURL=None):
+        self.currentBoard = boardName
+        self.currentThread = threadNo
+        self.currentImageURL = imageURL
 
     def updateThreadList(self, boardName):
         self.threads = self.api.getThreadList(boardName)
@@ -124,26 +128,30 @@ class MainWindow(QMainWindow):
         for post in self.threadPosts[(boardName, threadNo)]:
             self.imageList.addItem(post['filename'])
             
-    def updateMainImage(self, imageURL):
-        pixmap = QPixmap(imageURL)
-        self.mainImage.setPixmap(pixmap)
+    def updateMainImage(self):
+        filename = self.threadPosts[(self.currentBoard, self.currentThread)][self.imageList.currentRow()]['filename']
+        extension = self.threadPosts[(self.currentBoard, self.currentThread)][self.imageList.currentRow()]['ext']
+        path = self.api.downloadImage(self.currentImageURL, filename + extension)
 
     def on_threadSelect(self):
         current = self.threadList.currentRow()
+        self.updateCurrentSelected(boardName=self.currentBoard, threadNo=self.threads[current]['no'])
         try:
-            self.updatePostList(self.boardComboBox.currentText(), self.threads[current]['no'])
+            self.updatePostList(self.currentBoard, self.currentThread)
         except AttributeError:
             print('att err?')
 
     def on_postSelect(self):
-        current = self.threadList.currentRow()
-        board = self.boardComboBox.currentText()
-        threadNo = self.threads[current]['no']
+        self.imageList.clearSelection()
+
         postIndex = self.imageList.currentRow()
-        print(str(self.threadPosts[(board, threadNo)][postIndex]['imageURL']))
-        #self.mainImage.setText(self.threadPosts[(self.boardComboBox.currentText(), self.threads[current]['no'])])
+        imageURL = self.threadPosts[(self.currentBoard, self.currentThread)][postIndex]['imageURL']
+        self.updateCurrentSelected(boardName=self.currentBoard, threadNo=self.currentThread, imageURL=imageURL)
+        self.updateMainImage()
+        self.imageList.setCurrentRow(postIndex)
 
     # Event when the "go" button is clicked when selecting a board
     def on_boardLoad(self):
-        print(self.boardComboBox.currentText())
-        self.updateThreadList(self.boardComboBox.currentText())
+        boardName = self.boardComboBox.currentText()
+        self.updateCurrentSelected(boardName=boardName)
+        self.updateThreadList(self.currentBoard)

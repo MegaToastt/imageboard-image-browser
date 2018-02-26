@@ -1,5 +1,7 @@
 import requests
 import shutil
+import os
+import sys
 
 """
         TODO
@@ -13,6 +15,8 @@ class ApiInterface():
 
         self.boardsURL = 'https://a.4cdn.org/boards.json'
         self.boardInfo = {}
+
+        self.downloadPath = 'cache'
 
     # return list of dictionaries with board info
     def getBoardList(self):
@@ -67,16 +71,17 @@ class ApiInterface():
             postDict = {}
             postDict['no'] = post['no']
             postDict['filename'] = post['filename']
-            postDict['imageURL'] = 'https://i.4cdn.org/'+ boardName +'/'+ str(threadNo) + post['ext']
+            postDict['ext'] = post['ext']
+            postDict['imageURL'] = 'https://i.4cdn.org/'+ boardName +'/'+ str(post['tim']) + post['ext']
 
             postList.append(postDict)
         return postList
 
-    def downloadImage(URL):
+    def downloadImage(self, URL, filename):
         r = self.s.get(URL)
-        with open(path, 'wb') as f:
-            r.raw.decode_content = True
-            shuil.copyfileobj(r.raw, 'cache')
+        path = self.downloadPath + '/' + filename
+        open(path, 'wb').write(r.content)
+        
 
 
 
