@@ -4,6 +4,12 @@ from PyQt5.QtCore import *
 import pprint
 from .ImageWidget import ImageWidget
 
+'''
+TODO:
+    1. Change image section to be QScrollArea - see https://doc.qt.io/qt-5/qtwidgets-widgets-imageviewer-example.html
+    2. Make image viewing experience better
+'''
+
 class MainWindow(QMainWindow):
     def __init__(self, api):
         super(MainWindow, self).__init__()
@@ -68,7 +74,10 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
 
         self.mainImage = QLabel("Image")
-        self.mainImagePixmap = QPixmap()
+        self.mainImagePixmap = QPixmap(1000, 1000)
+        self.mainImagePixmap.fill()
+        self.mainImage.resize(self.mainImagePixmap.size())
+        self.centralWidget.resize(self.mainImagePixmap.size())
         #self.mainImage.setScaledContents(True)
         self.mainImage.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
