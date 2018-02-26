@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import pprint
-from ImageWidget import ImageWidget
+from .ImageWidget import ImageWidget
 
 class MainWindow(QMainWindow):
     def __init__(self, api):

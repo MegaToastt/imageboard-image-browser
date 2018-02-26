@@ -3,11 +3,6 @@ import shutil
 import os
 import sys
 
-"""
-        TODO
-    - Fix errors when selecting posts and changing boards
-    - Get the actual image to download using requests
-"""
 class ApiInterface():
     def __init__(self):
         # requests session
