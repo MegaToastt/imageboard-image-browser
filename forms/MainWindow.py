@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import pprint
+from ImageWidget import ImageWidget
 
 class MainWindow(QMainWindow):
     def __init__(self, api):
@@ -12,7 +13,6 @@ class MainWindow(QMainWindow):
         self.currentBoard = None
         self.currentThread = None
         self.currentImageURL = None
-
 
     def initUI(self):
         self.initMenuBar()
@@ -64,8 +64,20 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(boardLoadBtn)
 
     def initCentralWidget(self):
+        self.centralWidget = ImageWidget()
+        layout = QVBoxLayout()
+
         self.mainImage = QLabel("Image")
-        self.setCentralWidget(self.mainImage)
+        self.mainImagePixmap = QPixmap()
+        #self.mainImage.setScaledContents(True)
+        self.mainImage.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+        layout.addWidget(self.mainImage)
+        self.centralWidget.setLayout(layout)
+        self.centralWidget.resized.connect(self.updateMainImageSize)
+        self.setCentralWidget(self.centralWidget)
+
+
 
     def initDock(self):
         ## variable initialization ##
@@ -132,7 +144,16 @@ class MainWindow(QMainWindow):
         filename = self.threadPosts[(self.currentBoard, self.currentThread)][self.imageList.currentRow()]['filename']
         extension = self.threadPosts[(self.currentBoard, self.currentThread)][self.imageList.currentRow()]['ext']
         path = self.api.downloadImage(self.currentImageURL, filename + extension)
+        self.mainImagePixmap = QPixmap(path)
+        #self.mainImage.setPixmap(self.mainImagePixmap)
+        self.updateMainImageSize()
 
+    def updateMainImageSize(self):
+        w = self.mainImage.width()
+        h = self.mainImage.height()
+
+        self.mainImage.setPixmap(self.mainImagePixmap.scaled(w,h,Qt.KeepAspectRatio))
+        
     def on_threadSelect(self):
         current = self.threadList.currentRow()
         self.updateCurrentSelected(boardName=self.currentBoard, threadNo=self.threads[current]['no'])

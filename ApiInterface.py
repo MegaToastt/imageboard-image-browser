@@ -17,6 +17,7 @@ class ApiInterface():
         self.boardInfo = {}
 
         self.downloadPath = 'cache'
+        self.downloadedFiles = []
 
     # return list of dictionaries with board info
     def getBoardList(self):
@@ -78,9 +79,13 @@ class ApiInterface():
         return postList
 
     def downloadImage(self, URL, filename):
+        if(filename in self.downloadedFiles):
+            return self.downloadPath + '/' + filename
         r = self.s.get(URL)
         path = self.downloadPath + '/' + filename
         open(path, 'wb').write(r.content)
+        self.downloadedFiles.append(filename)
+        return path
         
 
 
